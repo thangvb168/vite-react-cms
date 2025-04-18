@@ -1,10 +1,12 @@
+import ThemeProvider from './contexts/theme/ThemeContext';
+import AppRoutes from './routes/AppRoutes';
+
 const App = () => {
   return (
-    <div>
-      <h1>HELLO WORLD</h1>
-      <h4>CMS WEBSITE</h4>
-    </div>
-  )
-}
+    <ThemeProvider>
+      <AppRoutes />
+    </ThemeProvider>
+  );
+};
 
-export default App
+export default App;
