@@ -2,7 +2,7 @@ import { BrowserRouter, Route, Routes } from 'react-router';
 
 import DashboardLayout from '@/layouts/DashboardLayout';
 import LoginPage from '@/pages/auth/LoginPage';
-import UserPage from '@/pages/dashboard/user/UserPage';
+import EmployeePage from '@/pages/dashboard/employee/EmployeePage';
 
 const AppRoutes = () => {
   return (
@@ -10,7 +10,7 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<DashboardLayout />}>
-          <Route path="employees" index element={<UserPage />} />
+          <Route index element={<EmployeePage />} />
         </Route>
         <Route path="*" element={<div>NOT FOUND</div>} />
       </Routes>

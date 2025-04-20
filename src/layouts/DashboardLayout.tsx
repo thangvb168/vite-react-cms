@@ -2,7 +2,6 @@ import { Outlet } from 'react-router-dom';
 
 import { Layout } from 'antd';
 
-import BottomBar from '@/containers/BottomBar/BottomBar';
 import SideBar from '@/containers/SideBar';
 import TopBar from '@/containers/TopBar';
 
@@ -16,10 +15,7 @@ const DashboardLayout = () => {
       <SideBar />
       <Layout>
         <TopBar title={title} />
-        <Content>
-          <Outlet />
-        </Content>
-        <BottomBar />
+        <Outlet />
       </Layout>
     </Layout>
   );
