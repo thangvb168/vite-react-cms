@@ -68,7 +68,11 @@ const LoginPage = () => {
           name="login"
           layout="vertical"
           onFinish={onFinish}
-          initialValues={{ remember: true }}
+          initialValues={{
+            remember: true,
+            email: 'testuser@gmail.com',
+            password: '12345678',
+          }}
         >
           <Form.Item
             label="Email"

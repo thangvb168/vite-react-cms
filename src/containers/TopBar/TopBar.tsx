@@ -24,19 +24,27 @@ const TopBar = (props: TopBarProps) => {
   const items: MenuProps['items'] = [
     {
       key: '0',
-      label: <Lang />,
+      label: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <Lang />
+        </div>
+      ),
     },
     {
       key: '1',
       label: (
-        <Flex justify="center">
+        <div onClick={(e) => e.stopPropagation()}>
           <Notification />
-        </Flex>
+        </div>
       ),
     },
     {
       key: '2',
-      label: <Profile user={user!} onLogout={logout} />,
+      label: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <Profile user={user!} onLogout={logout} />
+        </div>
+      ),
     },
   ];
 
