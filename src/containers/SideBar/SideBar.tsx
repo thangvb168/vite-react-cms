@@ -88,7 +88,15 @@ const SideBar = () => {
   };
 
   return (
-    <Sider trigger={null} collapsible collapsed={collapsed}>
+    <Sider
+      breakpoint="lg"
+      onBreakpoint={(_) => {
+        setCollapsed(true);
+      }}
+      trigger={null}
+      collapsible
+      collapsed={collapsed}
+    >
       <div className="relative flex h-12 w-full items-center justify-center bg-gray-200 transition-all duration-500">
         <h4 className="text-primary text-xl font-semibold">
           {collapsed ? 'T' : 'Thang Vu Ba'}

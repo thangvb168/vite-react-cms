@@ -13,6 +13,7 @@ import {
   Button,
   Dropdown,
   Flex,
+  Grid,
   Input,
   Layout,
   MenuProps,
@@ -24,6 +25,7 @@ import {
   TableProps,
   Tag,
 } from 'antd';
+import { createStyles } from 'antd-style';
 
 import employeeService from '@/services/employee';
 import type { Employee } from '@/types/employee';
@@ -34,6 +36,10 @@ import EditEmployeeForm from './EditEmployeeForm';
 const { Content, Footer } = Layout;
 
 const EmployeePage = () => {
+  const { useBreakpoint } = Grid;
+  const screens = useBreakpoint();
+  const isMobile = !screens.md;
+
   const [dataSource, setDataSource] = useState<Employee[]>([]);
   const [total, setTotal] = useState(dataSource.length || 0);
   const [pageSize, setPageSize] = useState(5);
@@ -171,6 +177,7 @@ const EmployeePage = () => {
         </Space>
       );
     },
+    fixed: 'left',
   };
 
   const filterItem: MenuProps['items'] = [
@@ -198,10 +205,30 @@ const EmployeePage = () => {
   const [loadingEdit, setLoadingEdit] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
+  const useStyle = createStyles(({ css, token }) => {
+    const { antCls } = token;
+    return {
+      customTable: css`
+        ${antCls}-table {
+          ${antCls}-table-container {
+            ${antCls}-table-body,
+            ${antCls}-table-content {
+              scrollbar-width: thin;
+              scrollbar-color: #eaeaea transparent;
+              scrollbar-gutter: stable;
+            }
+          }
+        }
+      `,
+    };
+  });
+
+  const { styles } = useStyle();
+
   return (
     <Layout>
       <Content className="p-4">
-        <Flex align="center" justify="end" gap={16}>
+        <Flex align="center" justify="end" gap={16} wrap="wrap">
           <Dropdown menu={{ items: filterItem }}>
             <Button
               size="large"
@@ -213,12 +240,13 @@ const EmployeePage = () => {
           <Input
             size="large"
             placeholder="Tìm kiếm"
-            style={{ width: 250 }}
+            style={{ width: isMobile ? '100%' : 250 }}
             prefix={<FontAwesomeIcon icon={faSearch} />}
           />
           <Button
             size="large"
             type="primary"
+            block={isMobile}
             icon={<FontAwesomeIcon icon={faAdd} />}
             onClick={() => setIsAddModalOpen(true)}
           >
@@ -301,6 +329,8 @@ const EmployeePage = () => {
         <br />
 
         <Table<Employee>
+          className={styles.customTable}
+          scroll={{ x: 'max-content' }}
           loading={loading}
           bordered
           rowKey={'id'}
@@ -315,7 +345,12 @@ const EmployeePage = () => {
         />
       </Content>
       <Footer>
-        <Flex justify="space-between" align="center">
+        <Flex
+          // justify="space-between"
+          align="center"
+          wrap="wrap"
+          className="w-full justify-center gap-x-4 gap-y-2 sm:justify-between"
+        >
           <div className="font-semibold text-gray-500">
             Hiển thị từ
             <span className="mx-1 text-black">
@@ -330,7 +365,6 @@ const EmployeePage = () => {
           </div>
 
           <Pagination
-            align="end"
             showSizeChanger
             pageSizeOptions={[5, 10, 15]}
             pageSize={pageSize}
