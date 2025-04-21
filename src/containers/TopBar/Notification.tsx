@@ -9,7 +9,7 @@ type NotificationProps = {};
 const Notification = (props: NotificationProps) => {
   const {} = props;
 
-  const [count, setCount] = useState(1);
+  const [count] = useState(1);
 
   return (
     <div className="relative">

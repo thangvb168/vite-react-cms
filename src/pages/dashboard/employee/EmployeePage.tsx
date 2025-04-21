@@ -206,6 +206,7 @@ const EmployeePage = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const useStyle = createStyles(({ css, token }) => {
+    // @ts-ignore
     const { antCls } = token;
     return {
       customTable: css`
