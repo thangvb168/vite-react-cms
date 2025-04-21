@@ -6,11 +6,5 @@ export interface Employee {
   name: string;
   email: string;
   phone: string;
-  address: string;
   position: string;
-  department: string;
-  salary: number;
-  hireDate: Date;
-  createdAt: Date;
-  updatedAt: Date;
 }

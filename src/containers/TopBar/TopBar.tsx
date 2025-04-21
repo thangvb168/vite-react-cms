@@ -1,8 +1,8 @@
 import { faFlag, faStar } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Flex, Layout, Select } from 'antd';
+import { Button, Flex, Layout, Select } from 'antd';
 
-import User from '@/types/user';
+import { useAuth } from '@/contexts/auth';
 
 import Notification from './Notification';
 import Profile from './Profile';
@@ -16,15 +16,7 @@ type TopBarProps = {
 const TopBar = (props: TopBarProps) => {
   const { title } = props;
 
-  const user: User = {
-    id: '1',
-    name: 'John Doe',
-    email: 'johndoe@gmail.com',
-    avatar:
-      'https://i.pinimg.com/736x/ad/31/39/ad313981729643d8ceef53da5dec58ff.jpg',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
+  const { user, logout } = useAuth();
 
   return (
     <Header>
@@ -42,7 +34,11 @@ const TopBar = (props: TopBarProps) => {
             </Select.Option>
           </Select>
           <Notification />
-          <Profile user={user} />
+          {user ? (
+            <Profile user={user} onLogout={logout} />
+          ) : (
+            <Button>Login</Button>
+          )}
         </Flex>
       </Flex>
     </Header>

@@ -6,3 +6,8 @@ export default interface User {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface LoginProps {
+  email: string;
+  password: string;
+}

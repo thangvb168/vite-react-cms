@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import {
   faBox,
@@ -16,91 +17,75 @@ import { Button, Layout, Menu } from 'antd';
 import type { MenuProps } from 'antd';
 
 const { Sider } = Layout;
-
 type MenuItem = Required<MenuProps>['items'][number];
 
 const SideBar = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const menuItems: MenuItem[] = [
     {
-      key: '1',
+      key: '/',
       label: 'Tổng quan',
       icon: <FontAwesomeIcon icon={faHome} />,
     },
     {
-      key: '2',
+      key: '/employees',
       label: 'Nhân viên',
       icon: <FontAwesomeIcon icon={faUser} />,
     },
     {
-      key: '3',
+      key: '/customers',
       label: 'Khách hàng',
       icon: <FontAwesomeIcon icon={faUsers} />,
     },
     {
-      key: '4',
+      key: '/orders',
       label: 'Đơn hàng',
       icon: <FontAwesomeIcon icon={faBox} />,
     },
     {
-      key: '5',
+      key: '/warehouses',
       label: 'Kho hàng',
       icon: <FontAwesomeIcon icon={faHome} />,
     },
     {
-      key: '6',
+      key: '/shipments',
       label: 'Đơn vận',
       icon: <FontAwesomeIcon icon={faCar} />,
     },
     {
-      key: '7',
+      key: 'finance',
       label: 'Tài chính',
       icon: <FontAwesomeIcon icon={faDollar} />,
       children: [
-        {
-          key: '7-1',
-          label: 'Chi phí',
-        },
-        {
-          key: '7-2',
-          label: 'Doanh thu',
-        },
-        {
-          key: '7-3',
-          label: 'Lợi nhuận',
-        },
+        { key: '/finance/expenses', label: 'Chi phí' },
+        { key: '/finance/revenue', label: 'Doanh thu' },
+        { key: '/finance/profit', label: 'Lợi nhuận' },
       ],
     },
     {
-      key: '8',
+      key: '/promotions',
       label: 'Khuyến mại',
       icon: <FontAwesomeIcon icon={faTicket} />,
     },
     {
-      key: '9',
+      key: 'categories',
       label: 'Danh mục',
       icon: <FontAwesomeIcon icon={faList} />,
       children: [
-        {
-          key: '9-1',
-          label: 'Sản phẩm',
-        },
-        {
-          key: '9-2',
-          label: 'Dịch vụ',
-        },
-        {
-          key: '9-3',
-          label: 'Nhà cung cấp',
-        },
-        {
-          key: '9-4',
-          label: 'Khách hàng',
-        },
+        { key: '/categories/products', label: 'Sản phẩm' },
+        { key: '/categories/services', label: 'Dịch vụ' },
+        { key: '/categories/suppliers', label: 'Nhà cung cấp' },
+        { key: '/categories/customers', label: 'Khách hàng' },
       ],
     },
   ];
+
+  const handleMenuClick = ({ key }: { key: string }) => {
+    navigate(key);
+  };
 
   return (
     <Sider trigger={null} collapsible collapsed={collapsed}>
@@ -119,7 +104,12 @@ const SideBar = () => {
           </Button>
         </div>
       </div>
-      <Menu mode="inline" defaultSelectedKeys={['2']} items={menuItems} />
+      <Menu
+        mode="inline"
+        selectedKeys={[location.pathname]}
+        items={menuItems}
+        onClick={handleMenuClick}
+      />
     </Sider>
   );
 };

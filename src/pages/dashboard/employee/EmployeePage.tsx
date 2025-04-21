@@ -1,8 +1,11 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 
 import {
+  faAdd,
   faEllipsisVertical,
   faPencil,
+  faSearch,
+  faSortAlphaDownAlt,
   faTrashCan,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -10,50 +13,69 @@ import {
   Button,
   Dropdown,
   Flex,
+  Input,
   Layout,
   MenuProps,
+  Modal,
   Pagination,
   Space,
   Table,
   TableColumnsType,
   TableProps,
+  Tag,
 } from 'antd';
 
-import { mockEmployees } from '@/mocks/data/employees';
+import employeeService from '@/services/employee';
 import type { Employee } from '@/types/employee';
+
+import AddEmployeeForm from './AddEmployeeForm';
+import EditEmployeeForm from './EditEmployeeForm';
 
 const { Content, Footer } = Layout;
 
 const EmployeePage = () => {
-  const dataSource = mockEmployees;
-
+  const [dataSource, setDataSource] = useState<Employee[]>([]);
   const [total, setTotal] = useState(dataSource.length || 0);
   const [pageSize, setPageSize] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
+
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
+    null
+  );
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const data = await employeeService.getAll();
+        setTotal(data.length);
+        setCurrentPage(1);
+        setPageSize(5);
+        setDataSource(data);
+      } catch (error) {
+        console.error('Error fetching employees:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const renderText = (value: string | number, className: string) => {
     return <span className={className}>{value}</span>;
   };
 
   const renderBadge = (value: string) => {
-    if (value === 'active')
-      return (
-        <span className="rounded-md border border-green-500 p-1 font-semibold text-green-500">
-          Đang hoạt động
-        </span>
-      );
-    if (value === 'deactive')
-      return (
-        <span className="rounded-md border border-red-500 p-1 font-semibold text-red-500">
-          Ngừng hoạt động
-        </span>
-      );
-    if (value === 'pending')
-      return (
-        <span className="rounded-md border border-yellow-500 p-1 font-semibold text-yellow-500">
-          Chờ xác nhận
-        </span>
-      );
+    const colorMap: Record<string, string> = {
+      active: 'green',
+      deactive: 'red',
+      pending: 'yellow',
+    };
+
+    return <Tag color={colorMap[value]}>{value}</Tag>;
   };
 
   const columns: TableColumnsType<Employee> = [
@@ -95,14 +117,15 @@ const EmployeePage = () => {
     {
       title: 'Thao tác',
       fixed: 'right',
-      render: (_, __, index) => {
+      render: (_, employee, __) => {
         const items: MenuProps['items'] = [
           {
             key: '0',
             label: 'Chỉnh sửa',
             icon: <FontAwesomeIcon icon={faPencil} />,
             onClick: () => {
-              console.log('Edit clicked');
+              setSelectedEmployee(employee);
+              setIsEditModalOpen(true);
             },
           },
           {
@@ -112,7 +135,8 @@ const EmployeePage = () => {
               <FontAwesomeIcon icon={faTrashCan} className="text-red-500" />
             ),
             onClick: () => {
-              console.log('Logout clicked::', index);
+              setSelectedEmployee(employee);
+              setIsDeleteModalOpen(true);
             },
           },
         ];
@@ -149,10 +173,135 @@ const EmployeePage = () => {
     },
   };
 
+  const filterItem: MenuProps['items'] = [
+    {
+      key: '0',
+      label: 'Tất cả',
+    },
+    {
+      key: '1',
+      label: 'Đang hoạt động',
+    },
+    {
+      key: '2',
+      label: 'Ngừng hoạt động',
+    },
+    {
+      key: '3',
+      label: 'Chờ xác nhận',
+    },
+  ];
+
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [loadingAdd, setLoadingAdd] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [loadingEdit, setLoadingEdit] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
   return (
     <Layout>
-      <Content>
+      <Content className="p-4">
+        <Flex align="center" justify="end" gap={16}>
+          <Dropdown menu={{ items: filterItem }}>
+            <Button
+              size="large"
+              icon={<FontAwesomeIcon icon={faSortAlphaDownAlt} />}
+            >
+              <span className="font-semibold">Bộ lọc</span>
+            </Button>
+          </Dropdown>
+          <Input
+            size="large"
+            placeholder="Tìm kiếm"
+            style={{ width: 250 }}
+            prefix={<FontAwesomeIcon icon={faSearch} />}
+          />
+          <Button
+            size="large"
+            type="primary"
+            icon={<FontAwesomeIcon icon={faAdd} />}
+            onClick={() => setIsAddModalOpen(true)}
+          >
+            <span className="font-semibold">Thêm mới</span>
+          </Button>
+        </Flex>
+
+        <AddEmployeeForm
+          open={isAddModalOpen}
+          onCancel={() => setIsAddModalOpen(false)}
+          onSave={(values) => {
+            try {
+              setLoadingAdd(true);
+              employeeService.add(values).then(() => {
+                employeeService.getAll().then((data) => {
+                  setDataSource(data);
+                  setTotal(data.length);
+                  setCurrentPage(1);
+                  setPageSize(5);
+                });
+              });
+            } catch (error) {
+              console.error('Error adding employee:', error);
+            } finally {
+              setLoadingAdd(false);
+            }
+          }}
+          loading={loadingAdd}
+        />
+
+        <EditEmployeeForm
+          employee={selectedEmployee}
+          open={isEditModalOpen}
+          onCancel={() => setIsEditModalOpen(false)}
+          onEdit={(values) => {
+            try {
+              setLoadingEdit(true);
+              employeeService.update(values).then(() => {
+                employeeService.getAll().then((data) => {
+                  setDataSource(data);
+                });
+              });
+            } catch (error) {
+              console.error('Error updating employee:', error);
+            } finally {
+              setLoadingEdit(false);
+              setSelectedEmployee(null);
+            }
+          }}
+          loading={loadingEdit}
+        />
+
+        <Modal
+          title="Xóa nhân viên"
+          open={isDeleteModalOpen}
+          cancelText="Hủy"
+          okText="Xóa"
+          onCancel={() => setIsDeleteModalOpen(false)}
+          onOk={() => {
+            try {
+              employeeService.delete(selectedEmployee?.id || '').then(() => {
+                employeeService.getAll().then((data) => {
+                  setDataSource(data);
+                  setTotal(data.length);
+                  setCurrentPage(1);
+                  setPageSize(5);
+                });
+              });
+              setIsDeleteModalOpen(false);
+            } catch (error) {
+              console.error('Error deleting employee:', error);
+            } finally {
+              setSelectedEmployee(null);
+            }
+          }}
+        >
+          <p>Bạn có chắc chắn muốn xóa nhân viên</p>
+        </Modal>
+
+        <br />
+
         <Table<Employee>
+          loading={loading}
           bordered
           rowKey={'id'}
           rowSelection={rowSelection}
@@ -181,7 +330,6 @@ const EmployeePage = () => {
           </div>
 
           <Pagination
-            hideOnSinglePage={true}
             align="end"
             showSizeChanger
             pageSizeOptions={[5, 10, 15]}
