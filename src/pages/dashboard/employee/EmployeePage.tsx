@@ -205,26 +205,26 @@ const EmployeePage = () => {
   const [loadingEdit, setLoadingEdit] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const useStyle = createStyles(({ css, token }) => {
-    // @ts-ignore
-    const { antCls } = token;
-    return {
-      customTable: css`
-        ${antCls}-table {
-          ${antCls}-table-container {
-            ${antCls}-table-body,
-            ${antCls}-table-content {
-              scrollbar-width: thin;
-              scrollbar-color: #eaeaea transparent;
-              scrollbar-gutter: stable;
-            }
-          }
-        }
-      `,
-    };
-  });
+  // const useStyle = createStyles(({ css, token }) => {
+  //   // @ts-ignore
+  //   const { antCls } = token;
+  //   return {
+  //     customTable: css`
+  //       ${antCls}-table {
+  //         ${antCls}-table-container {
+  //           ${antCls}-table-body,
+  //           ${antCls}-table-content {
+  //             scrollbar-width: thin;
+  //             scrollbar-color: #eaeaea transparent;
+  //             scrollbar-gutter: stable;
+  //           }
+  //         }
+  //       }
+  //     `,
+  //   };
+  // });
 
-  const { styles } = useStyle();
+  // const { styles } = useStyle();
 
   return (
     <Layout>
@@ -330,7 +330,7 @@ const EmployeePage = () => {
         <br />
 
         <Table<Employee>
-          className={styles.customTable}
+          // className={styles.customTable}
           scroll={{ x: 'max-content' }}
           loading={loading}
           bordered

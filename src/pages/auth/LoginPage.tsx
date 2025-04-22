@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Card, Checkbox, Flex, Form, Input, Typography } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import Joi from 'joi';
 
-import { useAuth } from '@/contexts/auth';
+import { useAuthStore } from '@/stores';
 
 const { Title } = Typography;
 
@@ -16,9 +17,12 @@ type FieldType = {
 };
 
 const LoginPage = () => {
-  const { login, error } = useAuth();
+  const error = useAuthStore((state) => state.error);
+  const login = useAuthStore((state) => state.loginUser);
   const [loginErrorMsg, setLoginErrorMsg] = useState('');
   const [form] = useForm();
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (error) {
@@ -55,6 +59,12 @@ const LoginPage = () => {
       email: values.email || '',
       password: values.password || '',
     });
+
+    if (useAuthStore.getState().isAuth) {
+      setLoginErrorMsg('');
+      form.resetFields();
+      navigate('/home');
+    }
   };
 
   return (

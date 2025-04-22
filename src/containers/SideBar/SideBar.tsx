@@ -90,8 +90,8 @@ const SideBar = () => {
   return (
     <Sider
       breakpoint="lg"
-      onBreakpoint={(_) => {
-        setCollapsed(true);
+      onBreakpoint={(breakpoint) => {
+        setCollapsed(breakpoint);
       }}
       trigger={null}
       collapsible

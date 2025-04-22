@@ -1,7 +1,7 @@
 import { MenuOutlined } from '@ant-design/icons';
 import { Button, Dropdown, Flex, Grid, Layout, MenuProps } from 'antd';
 
-import { useAuth } from '@/contexts/auth';
+import { useAuthStore } from '@/stores';
 
 import Lang from './Lang';
 import Notification from './Notification';
@@ -15,7 +15,8 @@ type TopBarProps = {
 
 const TopBar = (props: TopBarProps) => {
   const { title } = props;
-  const { user, logout } = useAuth();
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logoutUser);
 
   const { useBreakpoint } = Grid;
   const screens = useBreakpoint();

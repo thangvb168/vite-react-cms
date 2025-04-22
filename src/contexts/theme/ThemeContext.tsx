@@ -32,6 +32,9 @@ const ThemeProvider = (props: ThemeProviderProps) => {
             itemSelectedBg: '#f8d4ce',
             itemBg: '#fff',
           },
+          Table: {
+            headerColor: 'rgba(0,0,0,0.5)',
+          },
         },
       }}
     >
