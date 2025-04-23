@@ -149,7 +149,7 @@ export const TableList = <T extends AnyRecord>(props: Props<T>) => {
       fixed: 'right',
       align: 'center',
       width: 100,
-      render: (_, t, __) => {
+      render: (_, __, ___) => {
         return (
           <Dropdown
             menu={{

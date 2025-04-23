@@ -8,5 +8,7 @@ export type Props<T> = {
 };
 
 export const FormList = <T extends AnyRecord>(props: Props<T>) => {
+  const {} = props;
+
   return <div>FormList</div>;
 };
