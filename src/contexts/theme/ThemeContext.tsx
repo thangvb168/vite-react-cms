@@ -35,6 +35,11 @@ const ThemeProvider = (props: ThemeProviderProps) => {
           Table: {
             headerColor: 'rgba(0,0,0,0.5)',
           },
+          Button: {
+            linkHoverBg: 'transparent',
+            colorLink: '#d34127',
+            colorLinkHover: '#a82c1d',
+          },
         },
       }}
     >

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { login as loginApi } from '@/services/auth';
+import authService from '@/services/auth';
 import User, { LoginProps } from '@/types/user';
 
 export interface AuthState {
@@ -26,7 +26,7 @@ export const useAuthStore = create<AuthState>()(
         set({ loading: true, error: undefined });
 
         try {
-          const userData = await loginApi({ email, password });
+          const userData = await authService.login({ email, password });
           set({ user: userData, isAuth: true });
 
           console.log('Success:', userData);
