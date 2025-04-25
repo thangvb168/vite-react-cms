@@ -21,6 +21,9 @@ const employeeService: EmployeeService = {
 
       let data = response.data as Employee[];
 
+      // Reverse
+      data = data.reverse();
+
       searchTerm = searchTerm?.trim() || '';
 
       if (searchTerm) {

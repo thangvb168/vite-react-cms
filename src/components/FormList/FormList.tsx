@@ -131,14 +131,14 @@ export const FormList = <T extends AnyRecord>({
   const [messageApi, messageContext] = message.useMessage();
 
   const onFinish = async () => {
-    const hide = messageApi.loading('Đang xử lý...', 0); // loading vô thời hạ
+    const hide = messageApi.loading('Đang xử lý...', 0);
 
     try {
       const values = form.getFieldsValue();
       await handleFinish(values);
       hide();
 
-      messageApi.success('Thành công!', 2);
+      messageApi.success('Thành công!', 1);
       setTimeout(() => {
         navigate(-1);
       }, 2000);

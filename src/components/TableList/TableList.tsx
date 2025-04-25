@@ -117,7 +117,7 @@ export const TableList = <T extends AnyRecord>(props: Props<T>) => {
     onEdit = () => {},
   } = props;
 
-  const [rowSelected, setRowSelected] = useState<T[]>([]);
+  const [rowSelected, setRowSelected] = useState<React.Key[]>([]);
   const [idDeletes, setIdDeletes] = useState<(string | number)[]>([]);
 
   const {
@@ -252,9 +252,9 @@ export const TableList = <T extends AnyRecord>(props: Props<T>) => {
       );
     },
     fixed: 'left',
-
-    onChange: (_, selectedRow: T[]) => {
-      setRowSelected(selectedRow);
+    selectedRowKeys: rowSelected,
+    onChange: (selectedRowKeys: React.Key[]) => {
+      setRowSelected(selectedRowKeys);
     },
   };
 
@@ -262,6 +262,7 @@ export const TableList = <T extends AnyRecord>(props: Props<T>) => {
   const showDeleteConfirm = (
     idDeletes: (string | number)[] | string | number
   ) => {
+    console.log(idDeletes);
     if (typeof idDeletes === 'string' || typeof idDeletes === 'number') {
       setIdDeletes([idDeletes]);
     } else {
@@ -283,6 +284,7 @@ export const TableList = <T extends AnyRecord>(props: Props<T>) => {
       } else if (idDeletes.length > 1) {
         console.log('Delete Many');
         await handleDeleteMany(idDeletes);
+        setRowSelected([]);
       }
     } catch (error) {
       console.log('Error', error);
@@ -296,7 +298,7 @@ export const TableList = <T extends AnyRecord>(props: Props<T>) => {
     <div className="flex h-full grow flex-col justify-between">
       <Modal
         open={isModalDeleteVisible}
-        onClose={onCloseDeleteConfirm}
+        onCancel={onCloseDeleteConfirm}
         onOk={handleDelete}
         title="Xóa dữ liệu"
       >
@@ -334,8 +336,8 @@ export const TableList = <T extends AnyRecord>(props: Props<T>) => {
               disabled={!rowSelected.length}
               block
               onClick={() => {
-                const ids = rowSelected.map((item) => item.id);
-                showDeleteConfirm(ids);
+                const ids = rowSelected.map((id) => id);
+                showDeleteConfirm(ids as (string | number)[]);
               }}
             >
               Xóa

@@ -34,7 +34,7 @@ const EmployeeAdd = () => {
   ];
 
   return (
-    <div className="w-1/2">
+    <div className="">
       <FormList items={items} canEdit={true} service={employeeService} />
     </div>
   );
