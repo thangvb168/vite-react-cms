@@ -4,6 +4,8 @@ import { PAGE_DEFAULT, PAGE_SIZE_DEFAULT } from '@/constants/pagination';
 import { AnyRecord } from '@/types/utils';
 import { isEmpty } from '@/utils';
 
+import useDebounce from '../useDebounce';
+
 export interface UseListing<
   SearchParams extends AnyRecord,
   Model extends AnyRecord,
@@ -87,6 +89,8 @@ export const useListing = <
     }
   };
 
+  const debouncedSearchParams = useDebounce(searchParams, 500);
+
   useEffect(() => {
     if (defaultResponse !== undefined) {
       console.log('defaultResponse', defaultResponse);
@@ -94,7 +98,7 @@ export const useListing = <
     }
 
     handleGetList();
-  }, [searchParams]);
+  }, [debouncedSearchParams]);
 
   return {
     ...listingState,
