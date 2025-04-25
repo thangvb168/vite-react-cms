@@ -1,4 +1,6 @@
-import { Button, Layout } from 'antd';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+import { Layout } from 'antd';
 
 import {
   type ColumnType,
@@ -11,6 +13,10 @@ import type { Employee } from '@/types/employee';
 const { Content } = Layout;
 
 const EmployeePage = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { pathname } = location;
+
   const columns: ColumnType<Employee>[] = [
     {
       title: 'Mã nhân viên',
@@ -53,14 +59,21 @@ const EmployeePage = () => {
           bordered
           hasCheckbox={true}
           hasAction={true}
-          hasSearch={false}
+          hasSearch={true}
           stickyPagination={true}
           service={employeeService}
+          onAdd={() => {
+            navigate(`${pathname}/add`);
+          }}
+          onEdit={(item) => {
+            navigate(`${pathname}/edit/${item.id}`, {
+              state: {
+                data: item,
+              },
+            });
+          }}
         />
       </Content>
-      <Button type="link" color="primary" href="#">
-        1111
-      </Button>
     </Layout>
   );
 };

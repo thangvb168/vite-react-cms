@@ -1,10 +1,9 @@
 import { useState } from 'react';
 
-import { ApiResponse } from '@/types/apiResponse';
 import { AnyRecord } from '@/types/utils';
 
 export interface UseCreate<Model extends AnyRecord> {
-  createService: (data: Partial<Model>) => Promise<ApiResponse<Model>>;
+  createService: (data: Partial<Model>) => Promise<Model>;
   onSuccess: (data: Model) => void;
   onError: (error: any) => void;
   onFinally?: () => void;
@@ -35,22 +34,18 @@ export const useCreate = <Model extends AnyRecord>({
     try {
       const response = await createService(data);
 
-      if (response.status !== 'success' || response.code !== 200) {
-        throw new Error(response.message);
-      }
-
-      if (!response.data) {
-        throw new Error('No data returned from the server');
+      if (!response) {
+        throw new Error('Không có data trả về từ server');
       }
 
       setCreateState((prevState) => {
         return {
           ...prevState,
-          data: response.data,
+          data: response,
         };
       });
 
-      onSuccess(response.data);
+      onSuccess(response);
     } catch (error) {
       setCreateState((prevState) => {
         return {
@@ -69,5 +64,5 @@ export const useCreate = <Model extends AnyRecord>({
     }
   };
 
-  return { createState, handleCreate };
+  return { ...createState, handleCreate };
 };

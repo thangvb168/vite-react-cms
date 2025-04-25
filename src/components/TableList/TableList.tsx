@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 
 import {
   faEllipsisVertical,
@@ -28,6 +28,7 @@ import { PAGE_DEFAULT, PAGE_SIZE_DEFAULT } from '@/constants/pagination';
 import { useListing } from '@/hooks/useCRUD';
 import { PaginationMeta } from '@/types/apiResponse';
 import { CRUDService } from '@/types/crudService';
+import { SearchParams } from '@/types/params';
 import { AnyRecord } from '@/types/utils';
 
 const renderCell = (text: string | number, style?: ItemColumnStyle) => {
@@ -53,7 +54,7 @@ const renderCell = (text: string | number, style?: ItemColumnStyle) => {
         </Button>
       );
     default:
-      return <span className="font-semibold">{text}</span>;
+      return <span className="text-pr font-semibold">{text}</span>;
   }
 };
 
@@ -83,6 +84,9 @@ export type Props<T> = {
   hasSearch?: boolean;
 
   service: CRUDService<T>;
+
+  onAdd?: () => void;
+  onEdit?: (item: T) => void;
 };
 
 const PAGE_SIZE_OPTIONS: string[] = ['5', '10', '20', '50', '100'];
@@ -107,7 +111,12 @@ export const TableList = <T extends AnyRecord>(props: Props<T>) => {
     hasSearch = true,
 
     service,
+
+    onAdd = () => {},
+    onEdit = () => {},
   } = props;
+
+  const [rowSelected, setRowSelected] = useState<React.Key[]>([]);
 
   const {
     data,
@@ -117,7 +126,7 @@ export const TableList = <T extends AnyRecord>(props: Props<T>) => {
     isLoading,
     searchParams,
     setSearchParams,
-  } = useListing({
+  } = useListing<SearchParams, T>({
     defaultSearchParams: {
       page: defaultPagination.current,
       pageSize: defaultPagination.pageSize,
@@ -149,7 +158,7 @@ export const TableList = <T extends AnyRecord>(props: Props<T>) => {
       fixed: 'right',
       align: 'center',
       width: 100,
-      render: (_, __, ___) => {
+      render: (_, t: T, __) => {
         return (
           <Dropdown
             menu={{
@@ -160,6 +169,9 @@ export const TableList = <T extends AnyRecord>(props: Props<T>) => {
                     <FontAwesomeIcon className="text-blue-500" icon={faPen} />
                   ),
                   key: 'edit',
+                  onClick: () => {
+                    if (onEdit) onEdit(t);
+                  },
                 },
                 {
                   label: <span className="text-red-500">Xóa</span>,
@@ -187,14 +199,14 @@ export const TableList = <T extends AnyRecord>(props: Props<T>) => {
   }
 
   columns = columns.map((column) => {
-    if (column.style) {
-      return {
-        ...column,
-        render: (text: string | number) => renderCell(text, column.style),
-      };
+    if (column.render) return column;
+    if (!column.style) {
+      column.style = ItemColumnStyle.TEXT;
     }
-
-    return column;
+    return {
+      ...column,
+      render: (text: string | number) => renderCell(text, column.style),
+    };
   });
 
   const rowSelection: AntdTableProps<T>['rowSelection'] = {
@@ -217,18 +229,23 @@ export const TableList = <T extends AnyRecord>(props: Props<T>) => {
       );
     },
     fixed: 'left',
+    selectedRowKeys: rowSelected,
+    onChange: (selectedRowKeys: React.Key[]) => {
+      setRowSelected(selectedRowKeys);
+    },
   };
 
   return (
     <div className="flex h-full grow flex-col justify-between">
       <div className="flex flex-col gap-2 p-4">
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
           {hasSearch && (
-            <div className="flex items-center gap-2">
+            <div className="flex w-full items-center gap-2 md:w-1/3">
               <Button size="large" icon={<FontAwesomeIcon icon={faSort} />}>
                 Bộ lọc
               </Button>
               <Input
+                className="grow"
                 placeholder="Tìm kiếm"
                 prefix={<FontAwesomeIcon icon={faSearch} />}
                 size="large"
@@ -243,17 +260,17 @@ export const TableList = <T extends AnyRecord>(props: Props<T>) => {
               />
             </div>
           )}
-          <div className="flex items-center gap-2">
+          <div className="flex w-full items-center gap-2 md:w-fit">
             <Button
-              className="grow md:grow-0"
               size="large"
               type="primary"
               danger
-              disabled={true}
+              disabled={!rowSelected.length}
+              block
             >
               Xóa
             </Button>
-            <Button className="grow md:grow-0" size="large" type="primary">
+            <Button size="large" type="primary" block onClick={() => onAdd()}>
               Tạo mới
             </Button>
           </div>
