@@ -13,6 +13,7 @@ import {
   Button,
   Dropdown,
   Input,
+  Modal,
   Pagination,
   PaginationProps,
   Space,
@@ -25,7 +26,7 @@ import {
 } from 'antd/es/table';
 
 import { PAGE_DEFAULT, PAGE_SIZE_DEFAULT } from '@/constants/pagination';
-import { useListing } from '@/hooks/useCRUD';
+import { useDelete, useListing } from '@/hooks/useCRUD';
 import { PaginationMeta } from '@/types/apiResponse';
 import { CRUDService } from '@/types/crudService';
 import { SearchParams } from '@/types/params';
@@ -116,7 +117,8 @@ export const TableList = <T extends AnyRecord>(props: Props<T>) => {
     onEdit = () => {},
   } = props;
 
-  const [rowSelected, setRowSelected] = useState<React.Key[]>([]);
+  const [rowSelected, setRowSelected] = useState<T[]>([]);
+  const [idDeletes, setIdDeletes] = useState<(string | number)[]>([]);
 
   const {
     data,
@@ -126,6 +128,7 @@ export const TableList = <T extends AnyRecord>(props: Props<T>) => {
     isLoading,
     searchParams,
     setSearchParams,
+    handleGetList,
   } = useListing<SearchParams, T>({
     defaultSearchParams: {
       page: defaultPagination.current,
@@ -149,6 +152,23 @@ export const TableList = <T extends AnyRecord>(props: Props<T>) => {
         pageSize: meta.pageSize ?? PAGE_SIZE_DEFAULT,
       };
     },
+  });
+
+  const {
+    isLoading: isDeleteLoading,
+    handleDeleteOne,
+    handleDeleteMany,
+  } = useDelete({
+    deleteService: async (id: string | number) => {
+      await service.delete(id);
+    },
+    onSuccess: () => {
+      setIdDeletes([]);
+    },
+    onError: (error) => {
+      console.error('Delete error:', error);
+    },
+    onFinally: () => {},
   });
 
   if (hasAction) {
@@ -179,6 +199,9 @@ export const TableList = <T extends AnyRecord>(props: Props<T>) => {
                     <FontAwesomeIcon className="text-red-500" icon={faTrash} />
                   ),
                   key: 'delete',
+                  onClick: () => {
+                    showDeleteConfirm(t.id);
+                  },
                 },
               ],
             }}
@@ -229,14 +252,57 @@ export const TableList = <T extends AnyRecord>(props: Props<T>) => {
       );
     },
     fixed: 'left',
-    selectedRowKeys: rowSelected,
-    onChange: (selectedRowKeys: React.Key[]) => {
-      setRowSelected(selectedRowKeys);
+
+    onChange: (_, selectedRow: T[]) => {
+      setRowSelected(selectedRow);
     },
+  };
+
+  const [isModalDeleteVisible, setIsModalDeleteVisible] = useState(false);
+  const showDeleteConfirm = (
+    idDeletes: (string | number)[] | string | number
+  ) => {
+    if (typeof idDeletes === 'string' || typeof idDeletes === 'number') {
+      setIdDeletes([idDeletes]);
+    } else {
+      setIdDeletes(idDeletes);
+    }
+    setIsModalDeleteVisible(true);
+  };
+
+  const onCloseDeleteConfirm = () => {
+    setIdDeletes([]);
+    setIsModalDeleteVisible(false);
+  };
+
+  const handleDelete = async () => {
+    try {
+      if (idDeletes.length === 1) {
+        console.log('Delete One');
+        await handleDeleteOne(idDeletes[0]);
+      } else if (idDeletes.length > 1) {
+        console.log('Delete Many');
+        await handleDeleteMany(idDeletes);
+      }
+    } catch (error) {
+      console.log('Error', error);
+    }
+
+    handleGetList();
+    onCloseDeleteConfirm();
   };
 
   return (
     <div className="flex h-full grow flex-col justify-between">
+      <Modal
+        open={isModalDeleteVisible}
+        onClose={onCloseDeleteConfirm}
+        onOk={handleDelete}
+        title="Xóa dữ liệu"
+      >
+        <span>Bạn có chắc chắn xóa không ?</span>
+      </Modal>
+
       <div className="flex flex-col gap-2 p-4">
         <div className="flex flex-wrap items-center justify-end gap-2">
           {hasSearch && (
@@ -267,9 +333,14 @@ export const TableList = <T extends AnyRecord>(props: Props<T>) => {
               danger
               disabled={!rowSelected.length}
               block
+              onClick={() => {
+                const ids = rowSelected.map((item) => item.id);
+                showDeleteConfirm(ids);
+              }}
             >
               Xóa
             </Button>
+
             <Button size="large" type="primary" block onClick={() => onAdd()}>
               Tạo mới
             </Button>
@@ -283,7 +354,7 @@ export const TableList = <T extends AnyRecord>(props: Props<T>) => {
           pagination={false}
           rowKey={rowKey}
           bordered={bordered}
-          loading={isLoading}
+          loading={isLoading || isDeleteLoading}
           rowSelection={rowSelection}
         />
       </div>
