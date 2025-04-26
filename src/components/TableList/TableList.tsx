@@ -301,6 +301,9 @@ export const TableList = <T extends AnyRecord>(props: Props<T>) => {
         onCancel={onCloseDeleteConfirm}
         onOk={handleDelete}
         title="Xóa dữ liệu"
+        okText="Xóa"
+        cancelText="Hủy"
+        okButtonProps={{ danger: true, loading: isDeleteLoading }}
       >
         <span>Bạn có chắc chắn xóa không ?</span>
       </Modal>
@@ -361,7 +364,7 @@ export const TableList = <T extends AnyRecord>(props: Props<T>) => {
         />
       </div>
       {stickyPagination && (
-        <div className="flex items-center justify-between bg-white px-4 py-1">
+        <div className="flex flex-col items-center bg-white px-4 py-1 md:flex-row md:justify-between">
           <div className="font-semibold text-gray-500">
             Hiển thị từ
             <span className="mx-1 text-black">

@@ -68,8 +68,21 @@ const LoginPage = () => {
   };
 
   return (
-    <Flex justify="center" align="center" style={{ height: '100vh' }}>
-      <Card style={{ width: 380, padding: 24, borderRadius: 8 }}>
+    <Flex
+      justify="center"
+      align="center"
+      style={{ height: '100vh', backgroundColor: '#f0f2f5' }}
+    >
+      <Card
+        style={{
+          width: 380,
+          marginInline: 16,
+          padding: 24,
+          borderRadius: 12,
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+          backgroundColor: '#fff',
+        }}
+      >
         <Title level={3} style={{ textAlign: 'center' }}>
           Đăng nhập
         </Title>

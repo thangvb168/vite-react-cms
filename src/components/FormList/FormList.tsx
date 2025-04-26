@@ -9,7 +9,9 @@ import {
   Col,
   Flex,
   Input,
+  Radio,
   Row,
+  Select,
   Skeleton,
   message,
 } from 'antd';
@@ -20,7 +22,7 @@ import { useCreate, useGetById, useUpdate } from '@/hooks/useCRUD';
 import { CRUDService } from '@/types/crudService';
 import { AnyRecord } from '@/types/utils';
 
-export type ItemType = 'input' | 'textarea' | 'number' | 'mentions' | 'date';
+export type ItemType = 'input' | 'radio';
 
 export type FormItemProps<T> = AntdFormItemProps<T> & {
   name: keyof T;
@@ -29,6 +31,7 @@ export type FormItemProps<T> = AntdFormItemProps<T> & {
   disabled?: boolean;
   render?: () => React.ReactNode;
   colSpan?: number;
+  options?: { label: string; value: string }[];
 };
 
 export type FormListProps<T> = AntdFormProps<T> & {
@@ -44,10 +47,17 @@ export type FormListProps<T> = AntdFormProps<T> & {
   initData?: Partial<T>;
 };
 
-const renderItem = (type: ItemType, disabled = false, placeholder: string) => {
+const renderItem = (
+  type: ItemType,
+  disabled = false,
+  placeholder: string,
+  options: { label: string; value: string }[]
+) => {
   switch (type) {
     case 'input':
       return <Input disabled={disabled} placeholder={placeholder} />;
+    case 'radio':
+      return <Radio.Group disabled={disabled} options={options} />;
     default:
       return <Input placeholder={placeholder} />;
   }
@@ -66,11 +76,7 @@ export const FormList = <T extends AnyRecord>({
   const [form] = AntdForm.useForm();
   const navigate = useNavigate();
 
-  const {
-    data: getByIdData,
-    idLoading: isGetByIdLoading,
-    handleGetById,
-  } = useGetById<T>({
+  const { data: getByIdData, idLoading: isGetByIdLoading } = useGetById<T>({
     id: id || '',
     getIdService: async (id) => {
       const res = await service.getById(id);
@@ -79,11 +85,7 @@ export const FormList = <T extends AnyRecord>({
     },
   });
 
-  const {
-    data: createData,
-    isLoading: isCreateLoading,
-    handleCreate,
-  } = useCreate<T>({
+  const { isLoading: isCreateLoading, handleCreate } = useCreate<T>({
     createService: async (data) => {
       const response = await service.create(data);
 
@@ -97,11 +99,7 @@ export const FormList = <T extends AnyRecord>({
     onError: (err) => console.error('Create failed:', err),
   });
 
-  const {
-    data: updateDate,
-    isLoading: isUpdateLoading,
-    handleUpdate,
-  } = useUpdate<T>({
+  const { isLoading: isUpdateLoading, handleUpdate } = useUpdate<T>({
     id: id || '',
     updateService: async (id, data) => {
       const response = await service.update(id, data);
@@ -116,9 +114,8 @@ export const FormList = <T extends AnyRecord>({
     onError: (err) => console.error('Update failed:', err),
   });
 
-  const handleView = () => navigate(-1);
+  const handleView: () => void = () => navigate(-1);
 
-  const isEditPage = Boolean(id);
   const isCreatePage = !id;
   const isViewPage = id && !canEdit;
 
@@ -234,7 +231,12 @@ export const FormList = <T extends AnyRecord>({
                 <AntdForm.Item key={index} label={label} {...antdItemProps}>
                   {render
                     ? render()
-                    : renderItem(type, disabled, placeholder || '')}
+                    : renderItem(
+                        type,
+                        disabled,
+                        placeholder || '',
+                        item.options || []
+                      )}
                 </AntdForm.Item>
               </Col>
             );
@@ -246,6 +248,9 @@ export const FormList = <T extends AnyRecord>({
           >
             <FormItem label={null}>
               <Flex justify="end" gap={16}>
+                <Button type="default" onClick={handleView}>
+                  Hủy
+                </Button>
                 <Button loading={formLoading} type="primary" htmlType="submit">
                   {textSubmit}
                 </Button>
